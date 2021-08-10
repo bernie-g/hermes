@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 class HermesTest {
     @Test
     public void testHermes() throws InterruptedException {
-        Hermes.updateHermesGUI();
         for (int i = 0; i < 50; i++) {
             System.out.println(Hermes.getString("String Test Property"));
             System.out.println(Hermes.getInt("Int Test Property", 0, 50));
