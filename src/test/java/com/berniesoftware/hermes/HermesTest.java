@@ -10,7 +10,7 @@ class HermesTest {
             System.out.println(Hermes.getString("String Test Property"));
             System.out.println(Hermes.getInt("Int Test Property", 1, 100));
             System.out.println(Hermes.getBool("Bool Test Property"));
-            System.out.println(Hermes.getDouble("Double Test Property", 0, 5));
+            System.out.println(Hermes.getDouble("Double Test Property", -5.4, 5.90));
             Thread.sleep(1000);
         }
     }

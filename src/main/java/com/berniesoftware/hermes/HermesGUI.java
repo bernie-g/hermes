@@ -55,9 +55,12 @@ public class HermesGUI extends Application {
         if (container instanceof HermesNumberContainer) {
             HermesNumberContainer numberContainer = (HermesNumberContainer) container;
             if (container.getClazz() == double.class) {
-                MFXSlider slider = new MFXSlider((double) numberContainer.getMin(), (double) numberContainer
-                        .getMax(), (double) numberContainer
+                MFXSlider slider = new MFXSlider(0, 10, (double) numberContainer
                         .getValue());
+                slider.setMax(Double.MAX_VALUE);
+                slider.setMin(Double.MIN_VALUE);
+                slider.setMax((double)numberContainer.getMax());
+                slider.setMin((double)numberContainer.getMin());
                 slider.setDecimalPrecision(2);
                 slider.setPrefWidth(500);
                 slider.valueProperty().addListener((observable, oldValue, newValue) -> Hermes.hermesCache
@@ -66,6 +69,8 @@ public class HermesGUI extends Application {
             } else if (container.getClazz() == int.class) {
                 MFXSlider slider = new MFXSlider(0, 10, (int) numberContainer
                         .getValue());
+                slider.setMax(Double.MAX_VALUE);
+                slider.setMin(Double.MIN_VALUE);
                 slider.setMax((int) numberContainer.getMax());
                 slider.setMin((int) numberContainer.getMin());
                 slider.setPrefWidth(500);
