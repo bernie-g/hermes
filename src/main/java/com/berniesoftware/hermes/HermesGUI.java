@@ -64,9 +64,10 @@ public class HermesGUI extends Application {
                         .update(key, double.class, newValue.doubleValue()));
                 gridPane.add(slider, 1, rowCount);
             } else if (container.getClazz() == int.class) {
-                MFXSlider slider = new MFXSlider((int) numberContainer.getMin(), (int) numberContainer
-                        .getMax(), (int) numberContainer
+                MFXSlider slider = new MFXSlider(0, 10, (int) numberContainer
                         .getValue());
+                slider.setMax((int) numberContainer.getMax());
+                slider.setMin((int) numberContainer.getMin());
                 slider.setPrefWidth(500);
                 gridPane.add(slider, 1, rowCount);
                 slider.valueProperty().addListener((observable, oldValue, newValue) -> Hermes.hermesCache
