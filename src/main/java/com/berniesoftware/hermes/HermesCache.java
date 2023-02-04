@@ -1,8 +1,6 @@
 package com.berniesoftware.hermes;
 
 import com.berniesoftware.hermes.container.HermesContainer;
-import com.berniesoftware.hermes.container.HermesNumberContainer;
-import javafx.application.Platform;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,26 +10,19 @@ public class HermesCache {
     private Map<String, HermesContainer<?>> map = new ConcurrentHashMap<>();
 
     public <T> T get(String key, Class<T> clazz, T defaultValue) {
-        HermesContainer<T> value = (HermesContainer<T>) map
-                .putIfAbsent(key, new HermesContainer<>(clazz, defaultValue));
-        if (value == null) {
-            Platform.runLater(() -> Hermes.getHermesGUI().add(key, map.get(key)));
+        HermesContainer<?> container = map.computeIfAbsent(key, k -> new HermesContainer<T>(clazz, defaultValue));
+
+        Object value = container.getValue();
+        if (value.getClass() != clazz) {
+            throw new IllegalStateException("Hermes container type was not correct, something is wrong");
         }
-        return value == null ? defaultValue : value.getValue();
+        return (T) value;
     }
 
-    public <T extends Number> T get(String key, Class<T> clazz, T defaultValue, T min, T max) {
-        HermesNumberContainer<T> value = (HermesNumberContainer<T>) map
-                .putIfAbsent(key, new HermesNumberContainer<>(clazz, defaultValue, min, max));
-        if (value == null) {
-            Platform.runLater(() -> Hermes.getHermesGUI().add(key, map.get(key)));
-        }
-        return value == null ? defaultValue : value.getValue();
-    }
 
-    <T> void update(String key, Class<T> clazz, T value){
+    <T> void update(String key, Class<T> clazz, T value) {
         HermesContainer<T> hermesContainer = (HermesContainer<T>) map.get(key);
-        if(hermesContainer.getClazz() == clazz){
+        if (hermesContainer.getClazz() == clazz) {
             hermesContainer.setValue(value);
         }
     }

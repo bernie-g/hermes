@@ -1,58 +1,62 @@
 package com.berniesoftware.hermes;
 
-import javafx.application.Application;
-import javafx.application.Platform;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.SneakyThrows;
+import io.javalin.Javalin;
+import io.javalin.http.staticfiles.Location;
+
+import java.awt.*;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.URI;
 
 public class Hermes {
-    @Getter
-    @Setter(AccessLevel.PACKAGE)
-    private static HermesGUI hermesGUI;
-    private static boolean initializedGUI = false;
-    static HermesCache hermesCache = new HermesCache();
+    private static final int WEBSOCKET_PORT = 9005;
+    private static final int GUI_PORT = 6590;
+    private static boolean init = false;
+    private static HermesWebsocketServer server;
+
+    private static HermesCache hermesCache = new HermesCache();
 
     public static String getString(String key) {
-        updateHermesGUI();
-        return getString(key, "Lorem Ipsum");
-    }
-
-    public static String getString(String key, String defaultValue) {
-        updateHermesGUI();
-        return hermesCache.get(key, String.class, defaultValue);
+        Hermes.init();
+        return hermesCache.get(key, String.class, "Lorem Ipsum");
     }
 
     public static boolean getBool(String key) {
-        updateHermesGUI();
-        return getBool(key, false);
+        Hermes.init();
+        return hermesCache.get(key, Boolean.class, false);
     }
 
-    public static boolean getBool(String key, boolean defaultValue) {
-        updateHermesGUI();
-        return hermesCache.get(key, boolean.class, defaultValue);
+    public static int getInt(String key) {
+        Hermes.init();
+        return hermesCache.get(key, Integer.class, 0);
     }
 
-    public static int getInt(String key, int min, int max) {
-        updateHermesGUI();
-        return hermesCache.get(key, int.class, (min + max) / 2, min, max);
+    public static double getDouble(String key) {
+        Hermes.init();
+        return hermesCache.get(key, Double.class, 0d);
     }
 
-    public static double getDouble(String key, double min, double max) {
-        updateHermesGUI();
-        return hermesCache.get(key, double.class, (min + max) / 2, min, max);
+    public static <E extends Enum> E getEnum(String key, Class<E> enumClass) {
+        Hermes.init();
+        return hermesCache.get(key, enumClass, enumClass.getEnumConstants()[0]);
     }
 
-    @SneakyThrows
-    public static void updateHermesGUI() {
-        if (!initializedGUI) {
-            new Thread(() -> Application.launch(HermesGUI.class)).start();
-            Platform.startup(() -> { });
-            while(Hermes.getHermesGUI() == null){
-                Thread.sleep(1);
-            }
-            initializedGUI = true;
+    private static void init() {
+        if (init) {
+            return;
+        }
+
+        init = true;
+        server = new HermesWebsocketServer(new InetSocketAddress(WEBSOCKET_PORT));
+        server.start();
+        Javalin app = Javalin.create((config) -> config.staticFiles.add("/public", Location.CLASSPATH));
+        //config.server(() -> ServerUtil.createHttp2Server(new QueuedThreadPool(10, 2, 60_000)));
+        app.start(GUI_PORT);
+
+        try {
+            Desktop.getDesktop().browse(URI.create("http://localhost:" + GUI_PORT));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
