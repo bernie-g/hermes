@@ -52,7 +52,6 @@ public class Hermes {
         Javalin app = Javalin.create((config) -> config.staticFiles.add("/public", Location.CLASSPATH));
         //config.server(() -> ServerUtil.createHttp2Server(new QueuedThreadPool(10, 2, 60_000)));
         app.start(GUI_PORT);
-
         try {
             Desktop.getDesktop().browse(URI.create("http://localhost:" + GUI_PORT));
         } catch (IOException e) {
